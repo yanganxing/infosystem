@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.alix.infosystem.application.mapper.TestMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.alix.infosystem.application.model.entity.TestModel">
+        <id column="id" property="id" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="create_id" property="createId" />
+        <result column="create_name" property="createName" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_by_name" property="updateByName" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <insert id="insertModel"  parameterType="com.alix.infosystem.application.model.entity.TestModel" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO test(`id`,`username`,`password`,`create_id`,`create_name`,`create_time`,`update_by`,`update_by_name`,`update_time`,`del_flag`)VALUES
+        (
+            #{id},
+            #{username},
+            #{password},
+            #{create_id},
+            #{create_name},
+            #{create_time},
+            #{update_by},
+            #{update_by_name},
+            #{update_time},
+            '1'
+        );
+    </insert>
+
+</mapper>
