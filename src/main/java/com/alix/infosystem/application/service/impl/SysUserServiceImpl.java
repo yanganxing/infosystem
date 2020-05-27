@@ -1,7 +1,10 @@
 package com.alix.infosystem.application.service.impl;
 
 
+import com.alix.infosystem.application.mapper.SysUserMapper;
+import com.alix.infosystem.application.model.vo.SysUserVo;
 import com.alix.infosystem.application.service.ISysUserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 /**
  * @author Alix(杨安星)
@@ -12,4 +15,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class SysUserServiceImpl implements ISysUserService{
 
+    @Autowired
+    private SysUserMapper sysUserMapper;
+
+    @Override
+    public SysUserVo getUserByName(String username) {
+        return sysUserMapper.getUserByName(username);
+    }
 }

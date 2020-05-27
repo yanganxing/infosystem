@@ -3,6 +3,8 @@ package com.alix.infosystem.application.model.vo;
 import com.alix.infosystem.common.frame.BaseVo;
 import lombok.Data;
 
+import java.util.Set;
+
 /**
  * @author Alix(杨安星)
  * @version 1.0
@@ -17,4 +19,5 @@ public class SysUserVo extends BaseVo {
 	private String password;
 	private String phone;
 	private String userName;
+
 }

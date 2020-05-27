@@ -18,5 +18,9 @@
 		<result property="userName" column="user_name"/>
 	</resultMap>
 
+	<select id="getUserByName" parameterType="java.lang.String" resultType="com.alix.infosystem.application.model.vo.SysUserVo">
+		select * from sys_user where username= #{username}
+	</select>
+
 </mapper>
 

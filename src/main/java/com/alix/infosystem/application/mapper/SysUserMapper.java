@@ -1,6 +1,7 @@
 package com.alix.infosystem.application.mapper;
 
 import com.alix.infosystem.application.model.entity.SysUserEntity;
+import com.alix.infosystem.application.model.vo.SysUserVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -12,4 +13,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface SysUserMapper extends BaseMapper<SysUserEntity> {
+
+    SysUserVo getUserByName(String username);
+
 }

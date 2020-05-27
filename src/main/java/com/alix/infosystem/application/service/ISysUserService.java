@@ -1,6 +1,8 @@
 package com.alix.infosystem.application.service;
 
 
+import com.alix.infosystem.application.model.vo.SysUserVo;
+
 /**
  * @author Alix(杨安星)
  * @version 1.0
@@ -9,4 +11,8 @@ package com.alix.infosystem.application.service;
  */
 public interface ISysUserService{
 
+    /**
+     * 根据用户名查询用户信息
+     * */
+    SysUserVo getUserByName(String username);
 }

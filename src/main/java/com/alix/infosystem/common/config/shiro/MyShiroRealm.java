@@ -1,14 +1,13 @@
 package com.alix.infosystem.common.config.shiro;
 
+import com.alix.infosystem.application.model.vo.SysUserVo;
 import com.alix.infosystem.application.service.ISysUserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -38,8 +37,10 @@ public class MyShiroRealm extends AuthorizingRealm {
         log.info("身份验证开始");
         UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) authenticationToken;
         String username = usernamePasswordToken.getUsername();
+        SysUserVo sysUserVo = userService.getUserByName(username);
 
-        return null;
+        AuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo();
+        return authenticationInfo;
     }
 
 }

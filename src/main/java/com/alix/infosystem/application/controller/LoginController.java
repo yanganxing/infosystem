@@ -24,6 +24,9 @@ public class LoginController {
         try {
             // 登录
             subject.login(token);
+            if(subject.isAuthenticated()){
+                return "登录成功";
+            }
         } catch (UnknownAccountException uae) {
             // 用户名未知...
             return "用户不存在！";
