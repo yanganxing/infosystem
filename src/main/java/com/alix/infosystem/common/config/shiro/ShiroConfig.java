@@ -11,6 +11,7 @@ import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
@@ -57,11 +58,6 @@ public class ShiroConfig {
         MyShiroRealm myShiroRealm = new MyShiroRealm();
         // 设置密码比较器
         myShiroRealm.setCredentialsMatcher(CredentialsMatcher());
-//        // 启用身份验证缓存，即缓存AuthenticationInfo信息，默认false
-//        myShiroRealm.setAuthenticationCachingEnabled(true);
-//        // 启用授权缓存，即缓存AuthorizationInfo信息，默认false,一旦配置了缓存管理器，授权缓存默认开启
-//        myShiroRealm.setAuthorizationCachingEnabled(true);
-
         return myShiroRealm;
     }
 
@@ -92,9 +88,50 @@ public class ShiroConfig {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         //配置自定义权限认证器
         securityManager.setRealm(myShiroRealm());
+        //配置记住我管理器
+        securityManager.setRememberMeManager(rememberMeManager());
+        //配置缓存管理器
+        securityManager.setCacheManager(cacheManager());
         return securityManager;
     }
 
+    /**
+     * 缓存管理器
+     * @return
+     */
+    @Bean
+    public CacheManager cacheManager() {
+        MemoryConstrainedCacheManager mccm = new MemoryConstrainedCacheManager();
+        return mccm;
+    }
 
+    /**
+     * Cookie 对象 用户免登陆操作，但是需要配置filter /** 权限为user生效
+     *
+     * @return
+     */
+    public SimpleCookie rememMeCookie() {
+        // 初始化设置cookie的名称
+        SimpleCookie simpleCookie = new SimpleCookie("shiro-remember");
+        simpleCookie.setMaxAge(2592000);// 设置cookie的生效时间
+        simpleCookie.setHttpOnly(true);
+        return simpleCookie;
+    }
+
+    /**
+     * cookie 管理对象，记住我功能
+     *
+     * @return
+     */
+    public CookieRememberMeManager rememberMeManager() {
+        CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
+        cookieRememberMeManager.setCookie(rememMeCookie());
+        // remeberMe cookie 加密的密钥 各个项目不一样 默认AES算法 密钥长度（128 256 512）
+        cookieRememberMeManager.setCipherKey(Base64.decode(ENCRYPTION_KEY));
+        return cookieRememberMeManager;
+    }
+
+    public void f(){
+    }
 
 }

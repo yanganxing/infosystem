@@ -20,7 +20,6 @@ public class MyCredentialsMatcher extends HashedCredentialsMatcher {
      */
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-        System.out.println("进入自定义密码比较器");
         UsernamePasswordToken upt = (UsernamePasswordToken) token;
         String inputName = upt.getUsername();// 用户输入的用户名
         String inputPwd = new String(upt.getPassword());// 用户输入的密码

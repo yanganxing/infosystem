@@ -1,5 +1,7 @@
 package com.alix.infosystem.application.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
@@ -12,9 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
  * @create 2020-05-26 17:15
  */
 @RestController
+@Api(tags = "登录")
 public class LoginController {
 
     @PostMapping("/login")
+    @ApiOperation(value = "登录")
     public String login(String username,String password,boolean rememberMe){
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(username,password);
@@ -24,9 +28,6 @@ public class LoginController {
         try {
             // 登录
             subject.login(token);
-            if(subject.isAuthenticated()){
-                return "登录成功";
-            }
         } catch (UnknownAccountException uae) {
             // 用户名未知...
             return "用户不存在！";
@@ -43,6 +44,6 @@ public class LoginController {
             // 其他未指定异常
             return "未知异常！";
         }
-        return null;
+        return "登录成功";
     }
 }

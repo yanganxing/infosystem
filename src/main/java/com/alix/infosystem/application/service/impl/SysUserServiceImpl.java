@@ -20,6 +20,8 @@ public class SysUserServiceImpl implements ISysUserService{
 
     @Override
     public SysUserVo getUserByName(String username) {
+        //添加权限信息和橘色信息
+
         return sysUserMapper.getUserByName(username);
     }
 }

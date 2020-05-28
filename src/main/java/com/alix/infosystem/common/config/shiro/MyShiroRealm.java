@@ -5,6 +5,7 @@ import com.alix.infosystem.application.service.ISysUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -25,7 +26,13 @@ public class MyShiroRealm extends AuthorizingRealm {
      * */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        return null;
+        log.info("权限验证开始");
+        String username = (String) principalCollection.getPrimaryPrincipal();
+        SysUserVo sysUserVo = userService.getUserByName(username);
+        SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+        simpleAuthorizationInfo.setRoles(sysUserVo.getRoles());
+        simpleAuthorizationInfo.setStringPermissions(sysUserVo.getPermissions());
+        return simpleAuthorizationInfo;
     }
 
 
@@ -38,9 +45,9 @@ public class MyShiroRealm extends AuthorizingRealm {
         UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) authenticationToken;
         String username = usernamePasswordToken.getUsername();
         SysUserVo sysUserVo = userService.getUserByName(username);
-
-        AuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo();
-        return authenticationInfo;
+        String password = sysUserVo.getPassword();
+        SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(username,password,getName());
+        return simpleAuthenticationInfo;
     }
 
 }
