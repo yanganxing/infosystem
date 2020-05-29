@@ -5,9 +5,12 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author 杨安星(Alix)
@@ -19,7 +22,7 @@ public class LoginController {
 
     @PostMapping("/login")
     @ApiOperation(value = "登录")
-    public String login(String username,String password,boolean rememberMe){
+    public String login(String username, String password, boolean rememberMe, HttpServletResponse response){
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(username,password);
         if(rememberMe){
@@ -28,6 +31,8 @@ public class LoginController {
         try {
             // 登录
             subject.login(token);
+//            Cookie cookie = new Cookie("name",username);
+//            response.addCookie(cookie);
         } catch (UnknownAccountException uae) {
             // 用户名未知...
             return "用户不存在！";
@@ -45,5 +50,12 @@ public class LoginController {
             return "未知异常！";
         }
         return "登录成功";
+    }
+
+    @ApiOperation(value = "登出")
+    @GetMapping("/loginOut")
+    public void loginOut(){
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
     }
 }

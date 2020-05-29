@@ -55,6 +55,7 @@ public class ShiroConfig {
      */
     @Bean
     public MyShiroRealm myShiroRealm() {
+        log.info("进入自定义的realm");
         MyShiroRealm myShiroRealm = new MyShiroRealm();
         // 设置密码比较器
         myShiroRealm.setCredentialsMatcher(CredentialsMatcher());
@@ -129,9 +130,6 @@ public class ShiroConfig {
         // remeberMe cookie 加密的密钥 各个项目不一样 默认AES算法 密钥长度（128 256 512）
         cookieRememberMeManager.setCipherKey(Base64.decode(ENCRYPTION_KEY));
         return cookieRememberMeManager;
-    }
-
-    public void f(){
     }
 
 }

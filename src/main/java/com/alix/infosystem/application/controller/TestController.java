@@ -5,6 +5,7 @@ import com.alix.infosystem.application.model.vo.TestVo;
 import com.alix.infosystem.application.service.ITestService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class TestController {
 
     @ApiOperation("根据Id查询实体")
     @GetMapping("/loadById")
-    public TestVo loadById(String id){
+    public TestVo loadById(@NonNull String id){
         log.info("请求参数如下：{}",id);
         return  testService.loadById(id);
     }
