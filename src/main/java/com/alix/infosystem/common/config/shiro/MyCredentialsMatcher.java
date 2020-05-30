@@ -6,6 +6,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.crypto.hash.SimpleHash;
+import org.junit.Test;
 
 /**
  * @author 杨安星(Alix)
@@ -34,5 +35,9 @@ public class MyCredentialsMatcher extends HashedCredentialsMatcher {
         return equals(encryptionPwd, dbPassword);
     }
 
+    @Test
+    public void f(){
+        log.info(new SimpleHash("MD5", "123456", "yanganxing", 1024).toString());
+    }
 
 }

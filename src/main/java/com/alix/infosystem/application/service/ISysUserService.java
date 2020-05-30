@@ -1,7 +1,10 @@
 package com.alix.infosystem.application.service;
 
 
+import com.alix.infosystem.application.model.dto.SysUserDto;
 import com.alix.infosystem.application.model.vo.SysUserVo;
+
+import java.util.List;
 
 /**
  * @author Alix(杨安星)
@@ -11,8 +14,27 @@ import com.alix.infosystem.application.model.vo.SysUserVo;
  */
 public interface ISysUserService{
 
+
     /**
-     * 根据用户名查询用户信息
-     * */
+     * 获取用户的名字
+     * @param username 用户名
+     * @return {@link SysUserVo}
+     */
     SysUserVo getUserByName(String username);
+
+    /**
+     * 查询volist
+     * @param sysUserDto 系统用户dto
+     * @return {@link List<SysUserVo>}
+     */
+    List<SysUserVo> queryVOList(SysUserDto sysUserDto);
+
+    /**
+     * @param id id
+     * @return {@link SysUserVo}
+     */
+    SysUserVo  loadById(String id);
+
+
+    int save(SysUserDto userDto);
 }

@@ -14,6 +14,12 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface SysUserMapper extends BaseMapper<SysUserEntity> {
 
+
+    /**
+     * 获取用户的名字
+     * @param username 用户名
+     * @return {@link SysUserVo}
+     */
     SysUserVo getUserByName(String username);
 
 }

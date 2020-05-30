@@ -31,8 +31,6 @@ public class LoginController {
         try {
             // 登录
             subject.login(token);
-//            Cookie cookie = new Cookie("name",username);
-//            response.addCookie(cookie);
         } catch (UnknownAccountException uae) {
             // 用户名未知...
             return "用户不存在！";

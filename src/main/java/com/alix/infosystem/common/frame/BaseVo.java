@@ -13,26 +13,26 @@ import java.util.Date;
 public class BaseVo {
 
     @ApiModelProperty(value = "主键")
-    private Long id;
+    protected Long id;
 
     @ApiModelProperty(value = "创建人ID")
-    private String createId;
+    protected String createId;
 
     @ApiModelProperty(value = "创建人姓名")
-    private String createName;
+    protected String createName;
 
     @ApiModelProperty(value = "创建时间")
-    private Date createTime;
+    protected Date createTime;
 
     @ApiModelProperty(value = "修改人ID")
-    private String updateBy;
+    protected String updateBy;
 
     @ApiModelProperty(value = "修改人姓名")
-    private String updateByName;
+    protected String updateByName;
 
     @ApiModelProperty(value = "更新时间")
-    private Date updateTime;
+    protected Date updateTime;
 
     @ApiModelProperty(value = "删除标识")
-    private Integer delFlag;
+    protected Integer delFlag;
 }

@@ -1,5 +1,7 @@
 package com.alix.infosystem.common.config.shiro;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -8,22 +10,21 @@ import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.codec.Base64;
-import org.apache.shiro.crypto.hash.Md5Hash;
-import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.mgt.SessionsSecurityManager;
-import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
+import org.apache.shiro.session.SessionListener;
+import org.apache.shiro.session.mgt.SessionManager;
+import org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator;
+import org.apache.shiro.session.mgt.eis.SessionIdGenerator;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
-import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
+import org.crazycake.shiro.RedisManager;
+import org.crazycake.shiro.RedisSessionDAO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sun.rmi.runtime.Log;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * @author 杨安星(Alix)
@@ -32,10 +33,33 @@ import java.util.Map;
 @Configuration
 @Slf4j
 public class ShiroConfig {
-    // remeberMe cookie 加密的密钥 各个项目不一样 默认AES算法 密钥长度（128 256 512）
+
+    @Value("${spring.redis.host}")
+    private String host;
+
+    @Value("${spring.redis.port}")
+    private int port;
+
+
+
+    @Value("${spring.redis.database}")
+    private int database;
+
+    @Value("${spring.redis.timeout}")
+    private int timeout;
+
+
+    /**
+     * remeberMe cookie 加密的密钥 各个项目不一样 默认AES算法 密钥长度（128 256 512）
+     * */
     private static final String ENCRYPTION_KEY = "3AvVhmFLUs0KTA3Kprsdag==";
 
 
+    /**
+     * @param securityManager 安全管理器
+     * @return {@link ShiroFilterFactoryBean}
+     * 拦截请求
+     */
     @Bean
     public ShiroFilterFactoryBean shirFilter(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
@@ -44,7 +68,6 @@ public class ShiroConfig {
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
         // 配置不会被拦截的链接 顺序判断
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
-
         return shiroFilterFactoryBean;
     }
 
@@ -75,12 +98,6 @@ public class ShiroConfig {
         return hct;
     }
 
-    public static void main(String[] args) {
-       String s =  new SimpleHash("MD5", "123", "yanganxing", 1024).toString();
-        log.info(s);
-    }
-
-
     /**
      * 注入 securityManager
      */
@@ -91,8 +108,7 @@ public class ShiroConfig {
         securityManager.setRealm(myShiroRealm());
         //配置记住我管理器
         securityManager.setRememberMeManager(rememberMeManager());
-        //配置缓存管理器
-        securityManager.setCacheManager(cacheManager());
+        securityManager.setSessionManager(sessionManager());
         return securityManager;
     }
 
@@ -102,6 +118,7 @@ public class ShiroConfig {
      */
     @Bean
     public CacheManager cacheManager() {
+        log.info("redis配置信息如下：{}",host);
         MemoryConstrainedCacheManager mccm = new MemoryConstrainedCacheManager();
         return mccm;
     }
@@ -111,10 +128,11 @@ public class ShiroConfig {
      *
      * @return
      */
-    public SimpleCookie rememMeCookie() {
+    public SimpleCookie rememberMeCookie() {
         // 初始化设置cookie的名称
         SimpleCookie simpleCookie = new SimpleCookie("shiro-remember");
-        simpleCookie.setMaxAge(2592000);// 设置cookie的生效时间
+        // 设置cookie的生效时间
+        simpleCookie.setMaxAge(2592000);
         simpleCookie.setHttpOnly(true);
         return simpleCookie;
     }
@@ -126,10 +144,100 @@ public class ShiroConfig {
      */
     public CookieRememberMeManager rememberMeManager() {
         CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
-        cookieRememberMeManager.setCookie(rememMeCookie());
-        // remeberMe cookie 加密的密钥 各个项目不一样 默认AES算法 密钥长度（128 256 512）
+        cookieRememberMeManager.setCookie(rememberMeCookie());
+        // rememberMe cookie 加密的密钥 各个项目不一样 默认AES算法 密钥长度（128 256 512）
         cookieRememberMeManager.setCipherKey(Base64.decode(ENCRYPTION_KEY));
         return cookieRememberMeManager;
     }
 
+    @Bean
+    public RedisManager redisManager() {
+        RedisManager redisManager = new RedisManager();
+        redisManager.setHost(host);
+        redisManager.setPort(port);
+        redisManager.setTimeout(timeout);
+        return redisManager;
+    }
+
+    @Bean
+    public RedisSessionDAO redisSessionDAO() {
+        RedisSessionDAO redisSessionDao = new RedisSessionDAO();
+        //配置session前缀
+        redisSessionDao.setKeyPrefix("Auth-SessionID-");
+        redisSessionDao.setSessionIdGenerator(sessionIdGenerator());
+        redisSessionDao.setRedisManager(redisManager());
+        // session在redis中的保存时间,最好大于session会话超时时间
+        redisSessionDao.setExpire(timeout);
+        return redisSessionDao;
+    }
+
+
+    @Bean
+    public SessionIdGenerator sessionIdGenerator() {
+        return new JavaUuidSessionIdGenerator();
+    }
+
+    /**
+     * 配置会话管理器，设定会话超时及保存
+     *
+     * @return
+     */
+    @Bean
+    public SessionManager sessionManager() {
+        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+        Collection<SessionListener> listeners = new ArrayList<SessionListener>();
+        // 配置监听
+        listeners.add(sessionListener());
+        sessionManager.setSessionListeners(listeners);
+        sessionManager.setSessionIdCookie(sessionIdCookie());
+        sessionManager.setSessionDAO(redisSessionDAO());
+
+        // 全局会话超时时间（单位毫秒），默认30分钟 暂时设置为10秒钟 用来测试
+        sessionManager.setGlobalSessionTimeout(1800000);
+        // 是否开启删除无效的session对象 默认为true
+        sessionManager.setDeleteInvalidSessions(true);
+        // 是否开启定时调度器进行检测过期session 默认为true
+        sessionManager.setSessionValidationSchedulerEnabled(true);
+        // 设置session失效的扫描时间, 清理用户直接关闭浏览器造成的孤立会话 默认为 1个小时
+        // 设置该属性 就不需要设置 ExecutorServiceSessionValidationScheduler
+        // 底层也是默认自动调用ExecutorServiceSessionValidationScheduler
+        sessionManager.setSessionValidationInterval(3600000);
+        // 取消url 后面的 JSESSIONID，设置为false为取消
+        sessionManager.setSessionIdUrlRewritingEnabled(false);
+        return sessionManager;
+
+    }
+
+    /**
+     * 配置session监听
+     *
+     * @return
+     */
+    @Bean
+    public MySessionListener sessionListener() {
+        MySessionListener sessionListener = new MySessionListener();
+        return sessionListener;
+    }
+
+    /**
+     * 配置保存sessionId的cookie 注意：这里的cookie 不是上面的记住我 cookie 记住我需要一个cookie session管理
+     * 也需要自己的cookie 默认为: JSESSIONID 问题: 与SERVLET容器名冲突,重新定义为sid
+     *
+     * @return
+     */
+    @Bean("sessionIdCookie")
+    public SimpleCookie sessionIdCookie() {
+        // 这个参数是cookie的名称
+        SimpleCookie simpleCookie = new SimpleCookie("REDIS-SESSION");
+        // setcookie的httponly属性如果设为true的话，会增加对xss防护的安全系数。它有以下特点：
+
+        // setcookie()的第七个参数
+        // 设为true后，只能通过http访问，javascript无法访问
+        // 防止xss读取cookie
+        simpleCookie.setHttpOnly(true);
+        simpleCookie.setPath("/");
+        // maxAge=-1表示浏览器关闭时失效此Cookie
+        simpleCookie.setMaxAge(-1);
+        return simpleCookie;
+    }
 }

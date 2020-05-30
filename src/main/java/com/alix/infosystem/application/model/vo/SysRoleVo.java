@@ -14,4 +14,5 @@ import java.util.Date;
 public class SysRoleVo extends BaseVo {
 	private String roleName;
 	private String createName;
+
 }
