@@ -1,5 +1,7 @@
 package com.alix.infosystem.application.controller;
 
+import com.alix.infosystem.common.frame.result.Result;
+import com.alix.infosystem.common.frame.result.ResultCode;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.SecurityUtils;
@@ -22,7 +24,7 @@ public class LoginController {
 
     @PostMapping("/login")
     @ApiOperation(value = "登录")
-    public String login(String username, String password, boolean rememberMe, HttpServletResponse response){
+    public Result login(String username, String password, boolean rememberMe, HttpServletResponse response){
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(username,password);
         if(rememberMe){
@@ -32,22 +34,18 @@ public class LoginController {
             // 登录
             subject.login(token);
         } catch (UnknownAccountException uae) {
-            // 用户名未知...
-            return "用户不存在！";
+            return new Result(ResultCode.SCUESS,"用户不存在");
         } catch (IncorrectCredentialsException ice) {
             // 凭据不正确，例如密码不正确 ...
-            return "密码不正确！";
+            return  new Result(ResultCode.AuthErr,"密码不正确");
         } catch (LockedAccountException lae) {
-            // 用户被锁定，例如管理员把某个用户禁用...
-            return "用户被锁定！";
+            return  new Result(ResultCode.AuthErr,"用户被锁定");
         } catch (ExcessiveAttemptsException eae) {
-            // 尝试认证次数多余系统指定次数 ...
-            return "尝试认证次数过多，请稍后重试！";
+            return  new Result(ResultCode.AuthErr,"尝试认证次数过多，请稍后重试");
         } catch (AuthenticationException ae) {
-            // 其他未指定异常
-            return "未知异常！";
+            new Result(ResultCode.FAIL,"未知异常");
         }
-        return "登录成功";
+        return new Result(ResultCode.SCUESS,"登录成功");
     }
 
     @ApiOperation(value = "登出")
