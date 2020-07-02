@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -45,13 +44,14 @@ public class LoginController {
         } catch (AuthenticationException ae) {
             new Result(ResultCode.FAIL,"未知异常");
         }
-        return new Result(ResultCode.SCUESS,"登录成功");
+        return new Result(ResultCode.SCUESS,token);
     }
 
     @ApiOperation(value = "登出")
     @GetMapping("/loginOut")
-    public void loginOut(){
+    public Result loginOut(){
         Subject subject = SecurityUtils.getSubject();
         subject.logout();
+        return new Result(ResultCode.SCUESS,"操作成功");
     }
 }
